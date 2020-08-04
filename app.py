@@ -1,21 +1,19 @@
-import get_top_images
 import re
 from flask import Flask, request, jsonify
 import json
-
-
+from api import *
 app = Flask(__name__)
 
-
 @app.route('/api', methods=['GET'])
-def get_top_im_urls():
-    sub = request.args.get('sub')
-    n = int(request.args.get('n'))
-    period = request.args.get('per')
-    print(sub, n, period)
-    submission = get_top_images.get_top_submissions(sub, n, period)
-    urls = [x for x in get_top_images.image_urls(submission)]
-    return json.dumps({'response': urls})
+def api():
+    dic=request.args.copy().to_dict()
+    print(dic['fun'])
+    fun=dic['fun']
+    if(fun=='get_icon'):
+        return get_icon_sub(dic)
+    elif(fun=='get_top_img_urls'):
+        return get_top_img_urls(dic)
+    return 'testing'
 
 
 if __name__ == '__main__':
