@@ -1,19 +1,16 @@
 import re
 from flask import Flask, request, jsonify
 import json
+import api
 from api import *
 app = Flask(__name__)
 
 @app.route('/api', methods=['GET'])
-def api():
+def run_api():
     dic=request.args.copy().to_dict()
     print(dic['fun'])
     fun=dic['fun']
-    if(fun=='get_icon'):
-        return get_icon_sub(dic)
-    elif(fun=='get_top_img_urls'):
-        return get_top_img_urls(dic)
-    return 'testing'
+    return api.__dict__[fun](dic)
 
 
 if __name__ == '__main__':
