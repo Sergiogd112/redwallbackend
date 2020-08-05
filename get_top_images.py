@@ -55,7 +55,8 @@ def get_top_submissions(subreddit, limit, period):
             'y': all_submissions.get_top_from_year,
             'a': all_submissions.get_top_from_all
             }
-    return timeframe.get(period)(limit=limit)
+    data=timeframe.get(period)(limit=limit)
+    return data,[sub.score for sub in data]
 
 
 def image_urls(submissions):

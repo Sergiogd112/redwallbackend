@@ -1,7 +1,19 @@
 import requests
 import api
-topimurls=requests.get(url='http://localhost:5000/api?fun=get_top_img_urls&sub=EarthPorn&n=20&per=d')
-subicon=requests.get(url='http://localhost:5000/api?fun=get_icon_sub&sub=EarthPorn')
 
-print('urls imgs:',topimurls.text)
-print('subicon url:', subicon.text)
+api.get_top_img_urls(sub='EathPorn',n=100,period='d')
+import praw
+
+r = praw.Reddit(user_agent='nagracks')
+all_submissions=r.get_subreddit('EarthPorn',fetch=True)
+timeframe = {
+        'h': all_submissions.get_top_from_hour,
+        'd': all_submissions.get_top_from_day,
+        'w': all_submissions.get_top_from_week,
+        'm': all_submissions.get_top_from_month,
+        'y': all_submissions.get_top_from_year,
+        'a': all_submissions.get_top_from_all
+        }
+submissions=timeframe.get('d')(limit=100)
+# print([sub.upvotes for sub in submissions])
+print([sub.score for sub in submissions])
