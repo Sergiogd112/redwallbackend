@@ -56,7 +56,7 @@ def get_top_submissions(subreddit, limit, period):
             'a': all_submissions.get_top_from_all
             }
     data=timeframe.get(period)(limit=limit)
-    return data,[sub.score for sub in data]
+    return data
 
 
 def image_urls(submissions):
@@ -93,9 +93,10 @@ def image_urls(submissions):
     """
     for submission in submissions:
         url = submission.url
+        score =submission.score
         img_ext = ('jpg', 'jpeg', 'png', 'gif')
         if url.endswith(img_ext):
-            yield url
+            yield (url,score,submission.url)
         elif 'imgur' in url and ('/a/' in url or '/gallery/' in url):
             r = requests.get(url).text
             soup_ob = BeautifulSoup(r, 'html.parser')
@@ -105,7 +106,7 @@ def image_urls(submissions):
                     # img_link comes as //imgur.com/id make it
                     # https://imgur.com/id
                     url = 'https:' + partial_url
-                    yield url
+                    yield (url,score,submission.url)
                 except:
                     pass
         else:
@@ -118,7 +119,7 @@ def image_urls(submissions):
                 extension = ''
             if extension in img_ext:
                 link = '{url}.{ext}'.format(url=url, ext=extension)
-                yield link
+                yield (link,score,submission.url)
 
 
 def download_images(url, subreddit_name, destination):
