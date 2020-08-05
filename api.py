@@ -29,9 +29,9 @@ def get_icon_sub(dic=None, sub=None):
     return json.dumps({'url': r.get_subreddit(sub).icon_img})
 
 
-def get_cured_(dic=None, subs=None, n=20, per='d'):
+def get_cured(dic=None, subs=None, n=20, per='d'):
     if (not (subs)):
-        subs = dic['subs']
+        subs = dic['subs'].split('-')
         try:
             n = dic['n']
         except:
