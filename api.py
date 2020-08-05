@@ -33,7 +33,7 @@ def get_cured(dic=None, subs=None, n=20, per='d'):
     if (not (subs)):
         subs = dic['subs'].split('-')
         try:
-            n = dic['n']
+            n = int(dic['n'])
         except:
             pass
         try:

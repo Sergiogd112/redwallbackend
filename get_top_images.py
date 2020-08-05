@@ -92,6 +92,7 @@ def image_urls(submissions):
             print(image_url)
     """
     for submission in submissions:
+        print(submission)
         url = submission.url
         score =submission.score
         img_ext = ('jpg', 'jpeg', 'png', 'gif')
