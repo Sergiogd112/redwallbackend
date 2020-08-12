@@ -10,6 +10,7 @@ import argparse
 import json
 import os
 import sys
+from multiprocessing import Pool
 
 import praw
 import requests
@@ -120,8 +121,71 @@ def image_urls(submissions):
             if extension in img_ext:
                 link = '{url}.{ext}'.format(url=url, ext=extension)
                 yield (link,score,submission.url)
+def image_urls_Pool(submissions):
+    with Pool(4) as p:
+        data = p.map(image_urls_thread,submissions)
+    return [x for x in data if x is not None]
+def image_urls_thread(submission):
+    """Provides downloadable image urls. This works like this, if url
+    simply ends with image extensions then it will yield it otherwise it
+    will go on with other conditions. Other conditions are if url
+    contain ``imgur`` and ``/a`` or ``/gallery/`` then it will yield
+    urls with the help of ``BeautifulSoup``. And at the last if none of
+    these two methods works it will try to get downloadable image url by
+    making raw url by adding `.jpg` at the end of url and then checks
+    its headers' content-type if it is compatible image then generate
+    that url.
 
+    Parameters
+    ----------
+    submissions : generator
+        Subreddit submissions
 
+    Yields
+    -------
+    str
+        Downloadable image urls
+
+    Examples
+    --------
+    ::
+
+        submissions = get_top_submissions(
+                        subreddit, args.limit, args.period
+                        )
+        for image_url in image_urls(submissions):
+            # Downloadble image url
+            print(image_url)
+    """
+
+    url = submission.url
+    score =submission.score
+    img_ext = ('jpg', 'jpeg', 'png', 'gif')
+    if url.endswith(img_ext):
+        return (url,score,submission.url)
+    elif 'imgur' in url and ('/a/' in url or '/gallery/' in url):
+        r = requests.get(url).text
+        soup_ob = BeautifulSoup(r, 'html.parser')
+        for link in soup_ob.find_all('div', {'class': 'post-image'}):
+            try:
+                partial_url = link.img.get('src')
+                # img_link comes as //imgur.com/id make it
+                # https://imgur.com/id
+                url = 'https:' + partial_url
+                return (url,score,submission.url)
+            except:
+                pass
+    else:
+        raw_url = url + '.jpg'
+        try:
+            r = requests.get(raw_url)
+            r.raise_for_status()
+            extension = r.headers['content-type'].split('/')[-1]
+        except Exception as e:
+            extension = ''
+        if extension in img_ext:
+            link = '{url}.{ext}'.format(url=url, ext=extension)
+            return (link,score,submission.url)
 def download_images(url, subreddit_name, destination):
     """Download images
 
