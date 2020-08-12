@@ -121,6 +121,7 @@ def gen_files(path='storeddata/data.json', subs=['EarthPorn', 'MinimalWallpaper'
     with open('stored/status.txt','w') as f:
         f.write('updated')
 
+
 if __name__ == '__main__':
     gen_files()
     print()
