@@ -55,8 +55,6 @@ def get_cured(dic=None, subs=None, n=20, per='d'):
 
 def gen_files(path='storeddata/data.json', subs=['EarthPorn', 'MinimalWallpaper', 'Wallpaper', 'phonewallpapers', 'iWallpaper', 'wallpaperdump', 'spaceporn']):
     print(subs)
-    with open('storeddata/status.txt','w') as f:
-        f.write('updating')
     # ---- gen category ----
     print('Categories')
     # day
@@ -118,10 +116,19 @@ def gen_files(path='storeddata/data.json', subs=['EarthPorn', 'MinimalWallpaper'
         'date': time.time()
     }
     json.dump(data,open('storeddata/data.json','w'))
-    with open('stored/status.txt','w') as f:
-        f.write('updated')
 
 
+def updater():
+    print('started auto-updater')
+    t=time.gmtime(time.time())
+    sl=24*3600-t.tm_hour*3600-t.tm_min*60-t.tm_sec
+    time.sleep(sl)
+    while True:
+        thread=Thread(gen_files())
+        thread.start()
+        time.sleep(3600*24)
+def all():
+    return open('storeddata/data.json','r').read()
 if __name__ == '__main__':
     gen_files()
     print()

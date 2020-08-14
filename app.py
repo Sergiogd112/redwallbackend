@@ -10,23 +10,17 @@ from threading import Thread
 
 
 
+
 @app.route('/api', methods=['GET'])
 def run_api():
-    dic=request.args.copy().to_dict()
-    if(dic['fun']=='all'):
-        with open('storeddata/status.txt','r') as f:
-            status=f.read()
-        with open('storeddata/data.json','r') as f:
-            data=json.load(f)
-        if(status=='updated'and time.gmtime(data['date']).tm_mday != time.gmtime(time.time()).tm_mday):
-            print('updating')
-            thread=Thread(gen_files())
-            thread.start()
-        return json.dumps(data)
-    elif (dic['fun']=='search'):
+    thread=Thread(updater(),daemon=True,name='autoupdater')
+    thread.start()
 
-        return get_top_img_urls(dic)
+    print('done')
     
+    dic=request.args.copy().to_dict()
+    if (dic['fun']=='search'):
+        return get_top_img_urls(dic)
     else:
         return api.__dict__[dic['fun']]()
 
