@@ -117,14 +117,16 @@ def gen_files(path='storeddata/data.json', subs=['EarthPorn', 'MinimalWallpaper'
     }
     json.dump(data,open('storeddata/data.json','w'))
 
-
+def start():
+    thread=Thread(updater)
+    thread.start()
 def updater():
     print('started auto-updater')
     t=time.gmtime(time.time())
     sl=24*3600-t.tm_hour*3600-t.tm_min*60-t.tm_sec
     time.sleep(sl)
     while True:
-        thread=Thread(gen_files())
+        thread=Thread(target=gen_files())
         thread.start()
         time.sleep(3600*24)
 def all():

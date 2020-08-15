@@ -13,8 +13,7 @@ from threading import Thread
 
 @app.route('/api', methods=['GET'])
 def run_api():
-    thread=Thread(updater(),daemon=True,name='autoupdater')
-    thread.start()
+
 
     print('done')
     
@@ -26,4 +25,6 @@ def run_api():
 
 
 if __name__ == '__main__':
+    thread=Thread(target=updater)
+    thread.start()
     app.run(host='0.0.0.0')
