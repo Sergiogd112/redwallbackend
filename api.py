@@ -2,9 +2,12 @@ import get_top_images
 import praw
 import json
 from threading import Thread
+from threading import Event
 from multiprocessing import Pool
+
 import time
 
+_close_updater = Event()
 
 def get_top_img_urls(dic=None, sub=None, n=100, period='d'):
     if(type(dic) == type('')):
@@ -117,18 +120,21 @@ def gen_files(path='storeddata/data.json', subs=['EarthPorn', 'MinimalWallpaper'
     }
     json.dump(data,open('storeddata/data.json','w'))
 
-def start():
-    thread=Thread(updater)
-    thread.start()
-def updater():
-    print('started auto-updater')
-    t=time.gmtime(time.time())
-    sl=24*3600-t.tm_hour*3600-t.tm_min*60-t.tm_sec
-    time.sleep(sl)
-    while True:
-        thread=Thread(target=gen_files())
-        thread.start()
-        time.sleep(3600*24)
+class Updater(Thread):
+    def __init__(self):
+        self._close_updater=Event()
+        
+    def run(self):
+        print('started auto-updater')
+        slept=0
+        while not self._close_updater.is_set():
+            t=time.gmtime(time.time())
+            sl=24*3600-t.tm_hour*3600-t.tm_min*60-t.tm_sec
+            if sl == 0:
+                gen_files()
+            self._close_updater.wait(timeout=1.0)
+    def stop(self):
+        self._close_updater.set()
 def all():
     return open('storeddata/data.json','r').read()
 if __name__ == '__main__':

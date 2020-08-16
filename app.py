@@ -25,6 +25,9 @@ def run_api():
 
 
 if __name__ == '__main__':
-    thread=Thread(target=updater)
+    updater=Updater()
+    thread=Thread(target=updater.run)
     thread.start()
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0',debug=False)
+    updater.stop()
+    print('ended')
