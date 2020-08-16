@@ -24,12 +24,11 @@ def run_api():
         return api.__dict__[dic['fun']]()
 
 
-if __name__ == '__main__':
-    print('started')
-    gen_files()
-    updater=Updater()
-    thread=Thread(target=updater.run)
-    thread.start()
-    app.run(host='0.0.0.0',debug=False)
-    updater.stop()
-    print('ended')
+print('started')
+gen_files()
+updater=Updater()
+thread=Thread(target=updater.run)
+thread.start()
+app.run(host='0.0.0.0',debug=False)
+updater.stop()
+print('ended')
