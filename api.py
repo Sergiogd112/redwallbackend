@@ -4,10 +4,10 @@ import json
 from threading import Thread
 from threading import Event
 from multiprocessing import Pool
-
+import numpy as np
 import time
+import random
 
-_close_updater = Event()
 
 def get_top_img_urls(dic=None, sub=None, n=100, period='d'):
     if(type(dic) == type('')):
@@ -29,11 +29,18 @@ def get_top_img_urls(dic=None, sub=None, n=100, period='d'):
 
 
 def get_icon_sub(dic=None, sub=None):
+    random_url = "https://www.redditstatic.com/avatars/avatar_default_" +\
+        str(np.random.randint(0, 20)) +\
+        '_' + random.choice(json.load(open('iconurls.json','r'))['hex'])
+
     r = praw.Reddit(user_agent='nagracks')
 
     if (not (sub)):
         sub = dic['sub']
-    return json.dumps({'url': r.get_subreddit(sub).icon_img})
+    url = r.get_subreddit(sub).icon_img
+    if '' == url:
+        url = random_url
+    return json.dumps({'url': url})
 
 
 def get_cured(dic=None, subs=None, n=20, per='d'):
@@ -62,41 +69,51 @@ def gen_files(path='storeddata/data.json', subs=['EarthPorn', 'MinimalWallpaper'
     print('Categories')
     # day
     print('day')
-    day_data = [json.loads(get_top_img_urls(sub, period='d'))['response'] for sub in subs]
+    day_data = [json.loads(get_top_img_urls(sub, period='d'))[
+        'response'] for sub in subs]
     day_cat = dict(zip(subs, day_data))
     # week
     print('week')
-    week_data = [json.loads(get_top_img_urls(sub, period='w'))['response'] for sub in subs]
+    week_data = [json.loads(get_top_img_urls(sub, period='w'))[
+        'response'] for sub in subs]
     week_cat = dict(zip(subs, week_data))
     # month
     print('month')
-    month_data = [json.loads(get_top_img_urls(sub, period='m'))['response'] for sub in subs]
+    month_data = [json.loads(get_top_img_urls(sub, period='m'))[
+        'response'] for sub in subs]
     month_cat = dict(zip(subs, month_data))
     # year
     print('year')
-    year_data = [json.loads(get_top_img_urls(sub, period='y'))['response'] for sub in subs]
+    year_data = [json.loads(get_top_img_urls(sub, period='y'))[
+        'response'] for sub in subs]
     year_cat = dict(zip(subs, year_data))
     # all
     print('all')
-    all_data = [json.loads(get_top_img_urls(sub, period='a'))['response'] for sub in subs]
+    all_data = [json.loads(get_top_img_urls(sub, period='a'))[
+        'response'] for sub in subs]
     all_cat = dict(zip(subs, all_data))
     # ---- gen curated ----
     print('curated')
     # day
     print('day')
-    day_cured = sorted([sub for subs in day_data for sub in subs], key=(lambda l: int(l['score'])))[::-1]
+    day_cured = sorted([sub for subs in day_data for sub in subs], key=(
+        lambda l: int(l['score'])))[::-1]
     # week
     print('week')
-    week_cured = sorted([sub for subs in week_data for sub in subs], key=(lambda l: int(l['score'])))[::-1]
+    week_cured = sorted([sub for subs in week_data for sub in subs], key=(
+        lambda l: int(l['score'])))[::-1]
     # month
     print('month')
-    month_cured = sorted([sub for subs in month_data for sub in subs], key=(lambda l: int(l['score'])))[::-1]
+    month_cured = sorted([sub for subs in month_data for sub in subs], key=(
+        lambda l: int(l['score'])))[::-1]
     # year
     print('year')
-    year_cured = sorted([sub for subs in year_data for sub in subs], key=(lambda l: int(l['score'])))[::-1]
+    year_cured = sorted([sub for subs in year_data for sub in subs], key=(
+        lambda l: int(l['score'])))[::-1]
     # all
     print('all')
-    all_cured = sorted([sub for subs in all_data for sub in subs], key=(lambda l: int(l['score'])))[::-1]
+    all_cured = sorted([sub for subs in all_data for sub in subs], key=(
+        lambda l: int(l['score'])))[::-1]
     # ---- gen icons ----
     print('icons')
     icons = dict([[sub, get_icon_sub(sub=sub)] for sub in subs])
@@ -118,25 +135,31 @@ def gen_files(path='storeddata/data.json', subs=['EarthPorn', 'MinimalWallpaper'
         'icons': icons,
         'date': time.time()
     }
-    json.dump(data,open('storeddata/data.json','w'))
+    json.dump(data, open('storeddata/data.json', 'w'))
+
 
 class Updater(Thread):
     def __init__(self):
-        self._close_updater=Event()
-        
+        self._close_updater = Event()
+
     def run(self):
         print('started auto-updater')
-        slept=0
+        slept = 0
         while not self._close_updater.is_set():
-            t=time.gmtime(time.time())
-            sl=24*3600-t.tm_hour*3600-t.tm_min*60-t.tm_sec
+            t = time.gmtime(time.time())
+            sl = 24*3600-t.tm_hour*3600-t.tm_min*60-t.tm_sec
             if sl == 0:
                 gen_files()
             self._close_updater.wait(timeout=1.0)
+
     def stop(self):
         self._close_updater.set()
+
+
 def all():
-    return open('storeddata/data.json','r').read()
+    return open('storeddata/data.json', 'r').read()
+
+
 if __name__ == '__main__':
     gen_files()
     print()
