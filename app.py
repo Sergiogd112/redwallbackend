@@ -25,6 +25,7 @@ def run_api():
 
 
 if __name__ == '__main__':
+    print('started')
     gen_files()
     updater=Updater()
     thread=Thread(target=updater.run)
