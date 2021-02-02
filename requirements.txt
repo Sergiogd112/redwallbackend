@@ -70,7 +70,7 @@ attrs==19.3.0
 backcall==0.2.0
 Backtesting==0.1.7
 beautifulsoup4==4.4.1
-bleach==3.1.5
+bleach==3.3.0
 bokeh==2.0.2
 bs4==0.0.1
 cachetools==4.1.0
